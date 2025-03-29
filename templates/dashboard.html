@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+        <p class="lead">Welcome to Discourse Automation Tool</p>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-play-circle"></i> Run Scripts
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Setup</h5>
+                                <p class="card-text">Initialize Discourse setup</p>
+                                <a href="{{ url_for('run_script', script_name='setup') }}" class="btn btn-primary">
+                                    <i class="fas fa-play"></i> Run
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Categories</h5>
+                                <p class="card-text">Create/update categories</p>
+                                <a href="{{ url_for('run_script', script_name='category') }}" class="btn btn-primary">
+                                    <i class="fas fa-play"></i> Run
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Bulk Posts</h5>
+                                <p class="card-text">Create posts in bulk</p>
+                                <a href="{{ url_for('run_script', script_name='bulk_post') }}" class="btn btn-primary">
+                                    <i class="fas fa-play"></i> Run
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-history"></i> Execution History
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                {% if history %}
+                    <div class="list-group">
+                        {% for item in history %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ item.script_name|title }} Script</h6>
+                                    <small class="text-muted">{{ item.execution_time }}</small>
+                                </div>
+                                <p class="mb-1">
+                                    <span class="badge bg-{{ 'success' if item.status == 'completed' else 'danger' }}">
+                                        {{ item.status|title }}
+                                    </span>
+                                    for {{ item.occupation }}
+                                </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No execution history yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

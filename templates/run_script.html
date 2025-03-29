@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-terminal"></i> Running {{ script_name|title }} Script
+            </div>
+            <div class="card-body">
+                <div id="output" class="bg-dark text-white p-3 rounded" style="height: 400px; overflow-y: scroll;">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Starting script execution...</p>
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" id="backBtn" style="display: none;">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const outputDiv = document.getElementById('output');
+        const backBtn = document.getElementById('backBtn');
+        
+        // Start SSE connection to get real-time output
+        const eventSource = new EventSource(`{{ url_for('execute_script', script_name=script_name) }}`);
+        
+        eventSource.onmessage = function(e) {
+            if (e.data.trim() === '') return;
+            
+            outputDiv.innerHTML += '<div>' + e.data.replace(/\n/g, '<br>') + '</div>';
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        };
+        
+        eventSource.onerror = function() {
+            eventSource.close();
+            outputDiv.innerHTML += '<div class="text-danger">Script execution completed or failed.</div>';
+            backBtn.style.display = 'inline-block';
+        };
+    });
+</script>
+{% endblock %}
