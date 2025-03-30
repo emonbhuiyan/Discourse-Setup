@@ -15,6 +15,7 @@ from flask_frozen import Freezer #USED FOR GITHUB PAGES
 load_dotenv()
 
 app = Flask(__name__)
+freezer = Freezer(app) #USED FOR GITHUB PAGES
 app.secret_key = os.getenv('SECRET_KEY') or 'dev-secret-key'
 
 # Login required decorator
@@ -257,16 +258,17 @@ if __name__ == '__main__':
 
 
 # ...ADDED FOR GITHUB PAGES_)
-app = Flask(__name__)
-freezer = Freezer(app)
+# Freezer configuration
+@freezer.register_generator
+def url_generator():
+    # Add all dynamic routes here if needed
+    yield "/"
+    yield "/login"
+    yield "/dashboard"
+    yield "/logout"
+    yield "/configure"
+    yield "/run_script/<script_name>"
+    yield "/execute_script/<script_name>"
 
-@app.route("/")
-def index():
-    return "Welcome to the Discourse Automation Tool!"
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-# Add this block to handle freezing
 if __name__ == "freeze":
     freezer.freeze()
