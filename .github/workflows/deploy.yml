@@ -35,3 +35,4 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: build  # The directory where Frozen-Flask outputs static files
         publish_branch: gh-pages
+        force_orphan: true  # Force create the gh-pages branch if it doesn't exist
