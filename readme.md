@@ -63,8 +63,9 @@ To deploy the application using Gunicorn:
     ```
 ## Configuration
 ### Environment Variables
-Create a `.env` file in the project root with the following variables:
-    ```bash
+
+1. Create a `.env` file in the project root with the following variables:
+    ```py
     WEBAPP_ADMIN_USERNAME=admin
     WEBAPP_ADMIN_PASSWORD=admin
     SECRET_KEY=yoursecretkey

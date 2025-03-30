@@ -8,6 +8,7 @@ import time
 import os
 from dotenv import load_dotenv
 import ast  # For safely parsing Python literals
+from flask_frozen import Freezer #USED FOR GITHUB PAGES
 
 # Load environment variables
 load_dotenv()
@@ -251,3 +252,20 @@ if __name__ == '__main__':
     # Ensure config.py exists
     get_current_config()
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
+
+# ...ADDED FOR GITHUB PAGES_)
+freezer = Freezer(app)
+
+if __name__ == "__main__":
+    app.run()
+
+# Add a command to freeze the app
+@freezer.register_generator
+def url_generator():
+    # Add any dynamic routes here if needed
+    yield '/'
+
+if __name__ == "freeze":
+    freezer.freeze()
