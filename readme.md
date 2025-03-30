@@ -27,24 +27,24 @@ Follow these steps to set up and run the project:
 
 1. Install Python virtual environment:
    ```bash
-   $ apt install python3.12-venv
+   apt install python3.12-venv
    ```
 2. Create and activate a virtual environment:
     ```bash
-    $ python3 -m venv venv
-    $ source venv/bin/activate
+    python3 -m venv venv
+    source venv/bin/activate
     ```
 3. Install dependencies:
     ```bash
-    $ pip install -r requirements.txt
+    pip install -r requirements.txt
     ```
 4. Run the application:
     ```bash
-    $ python3 app.py
+    python3 app.py
     ```
 5. Deactivate the virtual environment when done:
     ```bash
-    $ deactivate
+    deactivate
     ```
 ### Deployment
 To deploy the application using Gunicorn:
@@ -64,7 +64,7 @@ To deploy the application using Gunicorn:
 ## Configuration
 ### Environment Variables
 Create a `.env` file in the project root with the following variables:
-    ```
+    ```bash
     WEBAPP_ADMIN_USERNAME=admin
     WEBAPP_ADMIN_PASSWORD=admin
     SECRET_KEY=yoursecretkey
