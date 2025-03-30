@@ -1,0 +1,10 @@
+OCCUPATION = ""
+API_KEY = ""
+ADMIN_USERNAME = ""
+GOOGLE_CLIENT_ID = ""
+GOOGLE_CLIENT_SECRET = ""
+GTM_ID = ""
+CATEGORIES = {
+}
+topics = [
+]

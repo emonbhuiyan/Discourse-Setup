@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="text-center">
+    <h2><i class="fas fa-cog"></i> Configuration</h2>
+    <p class="lead">Update Discourse automation settings</p>
+</div>
 <div class="row">
-    <div class="col-md-12">
-        <h2><i class="fas fa-cog"></i> Configuration</h2>
-        <p class="lead">Update Discourse automation settings</p>
-        
+    <div class="col-md-12">      
         <form method="POST" action="{{ url_for('configure') }}">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
@@ -26,6 +27,30 @@
                         <label for="admin_username" class="form-label">Admin Username</label>
                         <input type="text" class="form-control" id="admin_username" name="admin_username" 
                                value="{{ admin_username }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Google OAuth Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fab fa-google"></i> Google API Configuration
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Google Client ID</label>
+                        <input type="text" class="form-control" name="google_client_id" 
+                            value="{{ google_client_id }}" placeholder="Enter Google Client ID">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Google Client Secret</label>
+                        <input type="password" class="form-control" name="google_client_secret" 
+                            value="{{ google_client_secret }}" placeholder="Enter Google Client Secret">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Google Tag Manager ID</label>
+                        <input type="text" class="form-control" name="gtm_id" 
+                            value="{{ gtm_id }}" placeholder="Enter GTM ID (e.g., GTM-XXXXXX)">
                     </div>
                 </div>
             </div>
