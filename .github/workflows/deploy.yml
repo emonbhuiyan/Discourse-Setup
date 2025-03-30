@@ -27,7 +27,7 @@ jobs:
     - name: Freeze the Flask app
       run: |
         source venv/bin/activate
-        python -m app freeze
+        python -c "import app; app.freezer.freeze()"
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
