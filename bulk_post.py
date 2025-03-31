@@ -7,13 +7,21 @@ from config import topics
 HEADERS = {
     "Api-Key": config.API_KEY,
     "Api-Username": config.ADMIN_USERNAME,
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "User-Agent": "Discourse-Setup-Tool/1.0"
 }
+
+#Formatted occupation and URLs (No manual input here)
+FORMATTED_OCCUPATION = config.OCCUPATION.replace(" ", "")
+SITE_URL = f"https://www.get{FORMATTED_OCCUPATION.lower()}jobs.com"
+DISCOURSE_URL = f"https://forum.get{FORMATTED_OCCUPATION.lower()}jobs.com"
+SITE_TITLE = f"Get{FORMATTED_OCCUPATION}Jobs.com Forum"
+SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, share, and find jobs."
 
 # Fetch categories
 print("Fetching category IDs...")
 response = requests.get(
-    f"{config.DISCOURSE_URL}/categories.json",
+    f"{DISCOURSE_URL}/categories.json",
     headers={"Api-Key": config.API_KEY, "Api-Username": config.ADMIN_USERNAME}
 )
 
@@ -50,7 +58,7 @@ for category, title, description in topics:
     }
 
     post_response = requests.post(
-        f"{config.DISCOURSE_URL}/posts.json",
+        f"{DISCOURSE_URL}/posts.json",
         headers={"Api-Key": config.API_KEY, "Api-Username": config.ADMIN_USERNAME, "Content-Type": "application/json"},
         data=json.dumps(post_data)
     )
@@ -59,7 +67,7 @@ for category, title, description in topics:
         print(f"Failed to create topic '{title}':", post_response.text)
     else:
         topic_id = post_response.json().get("topic_id")
-        post_url = f"{config.DISCOURSE_URL}t/{topic_id}"
+        post_url = f"{DISCOURSE_URL}t/{topic_id}"
         post_links.append(post_url)
         print(f"Successfully created: '{title}'")
         print(f"Post URL: {post_url}")

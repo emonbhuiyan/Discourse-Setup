@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, Response
 from functools import wraps
 import subprocess
 import sys
@@ -206,45 +206,50 @@ def run_script(script_name):
 @app.route('/execute_script/<script_name>')
 @login_required
 def execute_script(script_name):
-    # Get current occupation from config
     config = get_current_config()
     occupation = config['OCCUPATION']
     
-    # Determine which script to run
-    if script_name == 'setup':
-        script_path = 'setup.py'
-    elif script_name == 'category':
-        script_path = 'category.py'
-    elif script_name == 'bulk_post':
-        script_path = 'bulk_post.py'
-    else:
-        return jsonify({'error': 'Invalid script name'})
-    
-    try:
-        # Execute the script and capture output
-        process = subprocess.Popen(['python', script_path], 
-                                 stdout=subprocess.PIPE, 
-                                 stderr=subprocess.PIPE,
-                                 text=True)
-        
-        # Stream the output
-        def generate():
-            while True:
-                output = process.stdout.readline()
-                if output == '' and process.poll() is not None:
-                    break
-                if output:
-                    yield output
-            yield "\nScript execution completed!"
+    # Validate script name
+    valid_scripts = ['setup', 'category', 'bulk_post']
+    if script_name not in valid_scripts:
+        return jsonify({'error': 'Invalid script name'}), 400
+
+    def generate():
+        try:
+            process = subprocess.Popen(
+                ['python', f'{script_name}.py'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,  # Merge stderr with stdout
+                text=True,
+                bufsize=1,  # Line buffered
+                universal_newlines=True
+            )
             
-            # Log successful execution
-            db.log_execution(script_name, occupation, "completed")
-        
-        return app.response_class(generate(), mimetype='text/plain')
-        
-    except Exception as e:
-        db.log_execution(script_name, occupation, "failed")
-        return jsonify({'error': str(e)})
+            # Stream output in real-time
+            for line in iter(process.stdout.readline, ''):
+                yield f"data: {line}\n\n"  # SSE format
+                
+            # Check completion status
+            return_code = process.wait()
+            if return_code == 0:
+                db.log_execution(script_name, occupation, "completed")
+                yield "data: \n\nScript completed successfully!\n\n\n"
+            else:
+                db.log_execution(script_name, occupation, "failed")
+                yield f"data: \n\nScript failed with exit code {return_code}\n\n\n"
+                
+        except Exception as e:
+            db.log_execution(script_name, occupation, "failed")
+            yield f"data: \n\nError: {str(e)}\n\n\n"
+
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        }
+    )
 
 if __name__ == '__main__':
     db.init_db()

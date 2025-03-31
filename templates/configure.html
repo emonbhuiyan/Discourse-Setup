@@ -84,6 +84,9 @@
                     <button type="button" id="add-category" class="btn btn-secondary mt-2">
                         <i class="fas fa-plus"></i> Add Category
                     </button>
+                    <button type="button" id="clear-categories" class="btn btn-danger mt-2 ms-2">
+                        <i class="fas fa-broom"></i> Clear All
+                    </button>
                 </div>
             </div>
 
@@ -142,6 +145,9 @@
                     <button type="button" id="add-topic" class="btn btn-secondary mt-2">
                         <i class="fas fa-plus"></i> Add Topic
                     </button>
+                    <button type="button" id="clear-topics" class="btn btn-danger mt-2 ms-2">
+                        <i class="fas fa-broom"></i> Clear All
+                    </button>
                 </div>
             </div>
 
@@ -175,68 +181,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Add category
         document.getElementById('add-category').addEventListener('click', function() {
-            const container = document.getElementById('categories-container');
-            const newCategory = document.createElement('div');
-            newCategory.className = 'category-group mb-3';
-            newCategory.innerHTML = `
-                <div class="row">
-                    <div class="col-md-5">
-                        <input type="text" class="form-control" name="category_name[]" placeholder="Category Name" required>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="text" class="form-control" name="category_desc[]" placeholder="Description" required>
-                    </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-danger remove-category">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-            container.appendChild(newCategory);
+            addCategoryField();
         });
         
         // Add topic
         document.getElementById('add-topic').addEventListener('click', function() {
-            const container = document.getElementById('topics-container');
-            const newTopic = document.createElement('div');
-            newTopic.className = 'topic-group mb-3';
-            
-            // Get current categories for dropdown
-            let categoryOptions = '';
-            const categoryInputs = document.querySelectorAll('input[name="category_name[]"]');
-            categoryInputs.forEach(input => {
-                if (input.value) {
-                    categoryOptions += `<option value="${input.value}">${input.value}</option>`;
-                }
-            });
-            
-            newTopic.innerHTML = `
-                <div class="row mb-2">
-                    <div class="col-md-4">
-                        <select class="form-select" name="topic_category[]" required>
-                            ${categoryOptions}
-                        </select>
-                    </div>
-                    <div class="col-md-7">
-                        <input type="text" class="form-control" name="topic_title[]" placeholder="Topic Title" required>
-                    </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-danger remove-topic">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <textarea class="form-control" name="topic_content[]" rows="3" placeholder="Topic Content" required></textarea>
-                    </div>
-                </div>
-            `;
-            container.appendChild(newTopic);
+            addTopicField();
         });
         
-        // Remove category
+        // Remove category or topic
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('remove-category')) {
                 e.target.closest('.category-group').remove();
@@ -244,9 +197,22 @@
                 e.target.closest('.topic-group').remove();
             }
         });
+
+        // Clear all categories
+        document.getElementById('clear-categories').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear ALL categories?')) {
+                document.getElementById('categories-container').innerHTML = '';
+            }
+        });
+
+        // Clear all topics
+        document.getElementById('clear-topics').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear ALL topics?')) {
+                document.getElementById('topics-container').innerHTML = '';
+            }
+        });
     });
-</script>
-<script>
+
     function parseCategories() {
         try {
             const rawText = document.querySelector('[name="categories_raw"]').value;
@@ -273,15 +239,20 @@
             document.getElementById('topics-container').innerHTML = '';
             
             // Add new topics
-            for (const [category, title, content] of topics) {
+            topics.forEach(topic => {
+                // Handle both tuple and array formats
+                const category = topic[0] || topic.category || '';
+                const title = topic[1] || topic.title || '';
+                const content = topic[2] || topic.content || '';
                 addTopicField(category, title, content);
-            }
+            });
         } catch (e) {
             alert('Error parsing topics: ' + e.message);
+            console.error(e);
         }
     }
     
-    // Helper functions to add fields
+    // Helper function to add category fields
     function addCategoryField(name = '', desc = '') {
         const container = document.getElementById('categories-container');
         const newCategory = document.createElement('div');
@@ -290,11 +261,11 @@
             <div class="row">
                 <div class="col-md-5">
                     <input type="text" class="form-control" name="category_name[]" 
-                           placeholder="Category Name" value="${name}" required>
+                           placeholder="Category Name" value="${escapeHtml(name)}" required>
                 </div>
                 <div class="col-md-6">
                     <input type="text" class="form-control" name="category_desc[]" 
-                           placeholder="Description" value="${desc}" required>
+                           placeholder="Description" value="${escapeHtml(desc)}" required>
                 </div>
                 <div class="col-md-1">
                     <button type="button" class="btn btn-danger remove-category">
@@ -306,6 +277,7 @@
         container.appendChild(newCategory);
     }
     
+    // Helper function to add topic fields
     function addTopicField(category = '', title = '', content = '') {
         const container = document.getElementById('topics-container');
         const newTopic = document.createElement('div');
@@ -317,9 +289,14 @@
         categoryInputs.forEach(input => {
             if (input.value) {
                 const selected = input.value === category ? 'selected' : '';
-                categoryOptions += `<option value="${input.value}" ${selected}>${input.value}</option>`;
+                categoryOptions += `<option value="${escapeHtml(input.value)}" ${selected}>${escapeHtml(input.value)}</option>`;
             }
         });
+        
+        // If no categories exist yet, add a placeholder
+        if (!categoryOptions) {
+            categoryOptions = `<option value="" disabled ${!category ? 'selected' : ''}>No categories available</option>`;
+        }
         
         newTopic.innerHTML = `
             <div class="row mb-2">
@@ -330,7 +307,7 @@
                 </div>
                 <div class="col-md-7">
                     <input type="text" class="form-control" name="topic_title[]" 
-                           placeholder="Topic Title" value="${title}" required>
+                           placeholder="Topic Title" value="${escapeHtml(title)}" required>
                 </div>
                 <div class="col-md-1">
                     <button type="button" class="btn btn-danger remove-topic">
@@ -341,11 +318,22 @@
             <div class="row">
                 <div class="col-md-12">
                     <textarea class="form-control" name="topic_content[]" 
-                              rows="3" placeholder="Topic Content" required>${content}</textarea>
+                              rows="3" placeholder="Topic Content" required>${escapeHtml(content)}</textarea>
                 </div>
             </div>
         `;
         container.appendChild(newTopic);
+    }
+
+    // Helper function to escape HTML special characters
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 </script>
 {% endblock %}

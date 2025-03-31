@@ -6,8 +6,16 @@ import config
 HEADERS = {
     "Api-Key": config.API_KEY,
     "Api-Username": config.ADMIN_USERNAME,
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "User-Agent": "Discourse-Setup-Tool/1.0"
 }
+
+#Formatted occupation and URLs (No manual input here)
+FORMATTED_OCCUPATION = config.OCCUPATION.replace(" ", "")
+SITE_URL = f"https://www.get{FORMATTED_OCCUPATION.lower()}jobs.com"
+DISCOURSE_URL = f"https://forum.get{FORMATTED_OCCUPATION.lower()}jobs.com"
+SITE_TITLE = f"Get{FORMATTED_OCCUPATION}Jobs.com Forum"
+SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, share, and find jobs."
 
 #title description automation
 def update_site_settings():
@@ -15,25 +23,25 @@ def update_site_settings():
     
     # Update Site Title
     title_response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/title"),
+        urljoin(DISCOURSE_URL, "/admin/site_settings/title"),
         headers=HEADERS,
-        json={"title": config.SITE_TITLE}
+        json={"title": SITE_TITLE}
     )
     
     if title_response.status_code == 200:
-        print(f"✓ Successfully updated site title to: {config.SITE_TITLE}")
+        print(f"✓ Successfully updated site title to: {SITE_TITLE}")
     else:
         print(f"✗ Failed to update title. Status: {title_response.status_code}, Response: {title_response.text}")
 
     # Update Site Description
     desc_response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/site_description"), 
+        urljoin(DISCOURSE_URL, "/admin/site_settings/site_description"), 
         headers=HEADERS,
-        json={"site_description": config.SITE_DESCRIPTION}
+        json={"site_description": SITE_DESCRIPTION}
     )
     
     if desc_response.status_code == 200:
-        print(f"✓ Successfully updated site description to: {config.SITE_DESCRIPTION}")
+        print(f"✓ Successfully updated site description to: {SITE_DESCRIPTION}")
     else:
         print(f"✗ Failed to update description. Status: {desc_response.status_code}, Response: {desc_response.text}")
 
@@ -41,7 +49,7 @@ def update_site_settings():
 def disable_powered_by():
     print("\nDisabling 'Powered by Discourse'...")
     response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/enable_powered_by_discourse"),
+        urljoin(DISCOURSE_URL, "/admin/site_settings/enable_powered_by_discourse"),
         headers=HEADERS,
         json={"enable_powered_by_discourse": "false"}
     )
@@ -57,7 +65,7 @@ def configure_google_oauth():
     
     # 1. Set Client ID
     client_id_response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/google_oauth2_client_id"),
+        urljoin(DISCOURSE_URL, "/admin/site_settings/google_oauth2_client_id"),
         headers=HEADERS,
         json={"google_oauth2_client_id": config.GOOGLE_CLIENT_ID}
     )
@@ -70,7 +78,7 @@ def configure_google_oauth():
 
     # 2. Set Client Secret
     client_secret_response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/google_oauth2_client_secret"),
+        urljoin(DISCOURSE_URL, "/admin/site_settings/google_oauth2_client_secret"),
         headers=HEADERS,
         json={"google_oauth2_client_secret": config.GOOGLE_CLIENT_SECRET}
     )
@@ -83,7 +91,7 @@ def configure_google_oauth():
 
     # 3. Enable Google OAuth
     enable_response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/enable_google_oauth2_logins"),
+        urljoin(DISCOURSE_URL, "/admin/site_settings/enable_google_oauth2_logins"),
         headers=HEADERS,
         json={"enable_google_oauth2_logins": "true"}
     )
@@ -101,7 +109,7 @@ def configure_gtm():
     
     # 1. Set GTM ID
     client_id_response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/gtm_container_id"),
+        urljoin(DISCOURSE_URL, "/admin/site_settings/gtm_container_id"),
         headers=HEADERS,
         json={"gtm_container_id": config.GTM_ID}
     )
@@ -118,7 +126,7 @@ def update_top_menu():
     
     # 1. Set the top menu items
     menu_response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/top_menu"),  # Construct endpoint like GTM
+        urljoin(DISCOURSE_URL, "/admin/site_settings/top_menu"),  # Construct endpoint like GTM
         headers=HEADERS,
         json={"top_menu": "categories|latest|new|unread|hot"}
     )
@@ -135,7 +143,7 @@ def configure_fonts():
 
     # 1. Set Base Font (Arial)
     base_font_response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/base_font"),
+        urljoin(DISCOURSE_URL, "/admin/site_settings/base_font"),
         headers=HEADERS,
         json={"base_font": "arial"}
     )
@@ -148,7 +156,7 @@ def configure_fonts():
 
     # 2. Set Heading Font (Arial)
     heading_font_response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/heading_font"),
+        urljoin(DISCOURSE_URL, "/admin/site_settings/heading_font"),
         headers=HEADERS,
         json={"heading_font": "arial"}
     )
@@ -165,7 +173,7 @@ def configure_fonts():
 def disable_full_page_login():
     print("\nDisabling 'Full page login'...")
     response = requests.put(
-        urljoin(config.DISCOURSE_URL, "/admin/site_settings/full_page_login"),
+        urljoin(DISCOURSE_URL, "/admin/site_settings/full_page_login"),
         headers=HEADERS,
         json={"full_page_login": "false"}
     )

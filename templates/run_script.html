@@ -20,6 +20,9 @@
                     <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" id="backBtn" style="display: none;">
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </a>
+                    <button id="stopBtn" class="btn btn-danger mt-2" style="display: none;">
+                        <i class="fas fa-stop"></i> Stop Script
+                    </button>
                 </div>
             </div>
         </div>
@@ -30,22 +33,62 @@
     document.addEventListener('DOMContentLoaded', function() {
         const outputDiv = document.getElementById('output');
         const backBtn = document.getElementById('backBtn');
+        const loadingSpinner = outputDiv.querySelector('.spinner-border');
+        const loadingText = outputDiv.querySelector('p');
         
-        // Start SSE connection to get real-time output
+        // Clear loading state when first message arrives
+        let firstMessageReceived = false;
+        
         const eventSource = new EventSource(`{{ url_for('execute_script', script_name=script_name) }}`);
         
         eventSource.onmessage = function(e) {
-            if (e.data.trim() === '') return;
+            if (!firstMessageReceived) {
+                // Clear loading indicators on first message
+                outputDiv.innerHTML = '';
+                firstMessageReceived = true;
+            }
             
-            outputDiv.innerHTML += '<div>' + e.data.replace(/\n/g, '<br>') + '</div>';
-            outputDiv.scrollTop = outputDiv.scrollHeight;
+            if (e.data.trim()) {  // Only process non-empty messages
+                const messageDiv = document.createElement('div');
+                messageDiv.style.whiteSpace = 'pre-wrap';
+                messageDiv.textContent = e.data;
+                outputDiv.appendChild(messageDiv);
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }
         };
         
         eventSource.onerror = function() {
+            if (!firstMessageReceived) {
+                // If connection fails immediately
+                outputDiv.innerHTML = '<div class="text-danger">Failed to start script execution</div>';
+            } else {
+                outputDiv.innerHTML += '<div class="text-info mt-2">Script execution completed</div>';
+            }
+            
             eventSource.close();
-            outputDiv.innerHTML += '<div class="text-danger">Script execution completed or failed.</div>';
             backBtn.style.display = 'inline-block';
+            
+            // Remove loading indicators if still present
+            if (loadingSpinner) loadingSpinner.remove();
+            if (loadingText) loadingText.remove();
         };
+
+        // Add this after creating the EventSource
+        setTimeout(() => {
+            if (!firstMessageReceived) {
+                eventSource.close();
+                outputDiv.innerHTML = '<div class="text-danger">Connection timeout</div>';
+                backBtn.style.display = 'inline-block';
+            }
+        }, 30000);  // 30 second timeout
+        
+        // Add to your JavaScript
+        document.getElementById('stopBtn').addEventListener('click', function() {
+            eventSource.close();
+            outputDiv.innerHTML += '<div class="text-warning">Script execution stopped by user</div>';
+            this.style.display = 'none';
+            backBtn.style.display = 'inline-block';
+        });
     });
 </script>
 {% endblock %}

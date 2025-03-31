@@ -8,8 +8,16 @@ from config import CATEGORIES
 HEADERS = {
     "Api-Key": config.API_KEY,
     "Api-Username": config.ADMIN_USERNAME,
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "User-Agent": "Discourse-Setup-Tool/1.0"
 }
+
+#Formatted occupation and URLs (No manual input here)
+FORMATTED_OCCUPATION = config.OCCUPATION.replace(" ", "")
+SITE_URL = f"https://www.get{FORMATTED_OCCUPATION.lower()}jobs.com"
+DISCOURSE_URL = f"https://forum.get{FORMATTED_OCCUPATION.lower()}jobs.com"
+SITE_TITLE = f"Get{FORMATTED_OCCUPATION}Jobs.com Forum"
+SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, share, and find jobs."
 
 def create_category(name, description):
     """Creates a category in Discourse"""
@@ -20,13 +28,13 @@ def create_category(name, description):
         "color": "0088CC",  # Blue color
         "text_color": "FFFFFF"  # White text
     }
-    response = requests.post(f"{config.DISCOURSE_URL}/categories.json", headers=HEADERS, json=data)
+    response = requests.post(f"{DISCOURSE_URL}/categories.json", headers=HEADERS, json=data)
     print("Response:", response.json())
 
 
 def fetch_category_id(name):
     """Fetches the category ID by name"""
-    response = requests.get(f"{config.DISCOURSE_URL}/categories.json", headers=HEADERS)
+    response = requests.get(f"{DISCOURSE_URL}/categories.json", headers=HEADERS)
     categories = response.json().get("category_list", {}).get("categories", [])
     
     for category in categories:
@@ -37,7 +45,7 @@ def fetch_category_id(name):
 
 def fetch_about_topic_id(category_id):
     """Fetches the 'About this category' topic ID"""
-    response = requests.get(f"{config.DISCOURSE_URL}/c/{category_id}/show.json", headers=HEADERS)
+    response = requests.get(f"{DISCOURSE_URL}/c/{category_id}/show.json", headers=HEADERS)
     topic_url = response.json().get("category", {}).get("topic_url")
     
     if topic_url:
@@ -48,7 +56,7 @@ def fetch_about_topic_id(category_id):
 
 def fetch_first_post_id(topic_id):
     """Fetches the first post ID of a topic"""
-    response = requests.get(f"{config.DISCOURSE_URL}/t/{topic_id}/posts.json", headers=HEADERS)
+    response = requests.get(f"{DISCOURSE_URL}/t/{topic_id}/posts.json", headers=HEADERS)
     posts = response.json().get("post_stream", {}).get("posts", [])
     
     return posts[0]["id"] if posts else None
@@ -59,13 +67,13 @@ def update_about_category_content(post_id, content, title):
     print(f"Updating Post ID {post_id} with new content and title: {title}")
     data = {"post": {"raw": content, "title": title}}
     
-    response = requests.put(f"{config.DISCOURSE_URL}/posts/{post_id}.json", headers=HEADERS, json=data)
+    response = requests.put(f"{DISCOURSE_URL}/posts/{post_id}.json", headers=HEADERS, json=data)
     print("Updated content response:", response.json())
 
 
 def rename_about_topics():
     """Renames 'About this category' topics by removing 'About'"""
-    response = requests.get(f"{config.DISCOURSE_URL}/categories.json", headers=HEADERS)
+    response = requests.get(f"{DISCOURSE_URL}/categories.json", headers=HEADERS)
     categories = response.json().get("category_list", {}).get("categories", [])
 
     for category in categories:
@@ -77,7 +85,7 @@ def rename_about_topics():
             print(f"No 'About this category' topic found for '{category_name}'. Skipping...")
             continue
 
-        topic_response = requests.get(f"{config.DISCOURSE_URL}/t/{topic_id}.json", headers=HEADERS)
+        topic_response = requests.get(f"{DISCOURSE_URL}/t/{topic_id}.json", headers=HEADERS)
         current_title = topic_response.json().get("title", "")
 
         match = re.match(r"About the (.*) category", current_title)
@@ -86,7 +94,7 @@ def rename_about_topics():
             print(f"Renaming '{current_title}' -> '{new_title}'")
 
             data = {"title": new_title}
-            response = requests.put(f"{config.DISCOURSE_URL}/t/{topic_id}.json", headers=HEADERS, json=data)
+            response = requests.put(f"{DISCOURSE_URL}/t/{topic_id}.json", headers=HEADERS, json=data)
             print("Updated title response:", response.json())
         else:
             print(f"Title '{current_title}' does not match expected pattern. Skipping...")

@@ -70,6 +70,37 @@ To deploy the application using Gunicorn:
     WEBAPP_ADMIN_PASSWORD=admin
     SECRET_KEY=yoursecretkey
     ```
+## Stop Deployment
+1. If Running Locally (Development Server)
+Press `CTRL + C` in the terminal where Flask is running.
+
+2. If Running in Production (Using `gunicorn`/`uWSGI` with `nginx`)
+**Find and Kill the Process**
+    - **Find the process:**
+    ```bash
+    ps aux | grep 'flask\|gunicorn\|python'
+    ```
+    **or for a specific port (e.g., 5000):**
+    ```bash
+    sudo lsof -i :5000
+    ```
+    - **Kill the process** (replace `<PID>` with the process ID from above):
+    ```bash
+    kill -9 <PID>
+    ```
+3. If Using systemd (Recommended for Production)
+    - **Stop the service** (replace flaskapp with your service name):
+    ```bash
+    sudo systemctl stop flaskapp
+    ```
+4. **Disable auto-start** (optional):
+    ```bash
+    sudo systemctl disable flaskapp
+    ```
+5. **Or kill directly**:
+    ```bash
+    sudo pkill -f gunicorn
+    ```
 ### Application Configuration
 The application uses a `config.py` file to store settings. You can configure the following:
 
