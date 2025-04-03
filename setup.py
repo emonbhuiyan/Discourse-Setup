@@ -93,14 +93,14 @@ def configure_google_oauth():
     enable_response = requests.put(
         urljoin(DISCOURSE_URL, "/admin/site_settings/enable_google_oauth2_logins"),
         headers=HEADERS,
-        json={"enable_google_oauth2_logins": "true"}
+        json={"enable_google_oauth2_logins": "false"}
     )
     
     if enable_response.status_code == 200:
-        print("✓ Google OAuth logins enabled successfully")
+        print("✓ Google OAuth logins disabled successfully")
         return True
     else:
-        print(f"✗ Failed to enable Google OAuth: {enable_response.status_code} - {enable_response.text}")
+        print(f"✗ Failed to disabled Google OAuth: {enable_response.status_code} - {enable_response.text}")
         return False
 
 # Configure Google TAG Manager
@@ -183,6 +183,25 @@ def disable_full_page_login():
     else:
         print(f"✗ Failed to disable. Status: {response.status_code}, Response: {response.text}")
 
+# Set default color scheme to light (ID 7)
+def set_default_color_scheme():
+    print("\nSetting default color scheme to light (ID 7)...")
+    
+    # Update default dark mode color scheme (forces light mode)
+    dark_mode_response = requests.put(
+        urljoin(DISCOURSE_URL, "/admin/site_settings/default_dark_mode_color_scheme_id"),
+        headers=HEADERS,
+        json={"default_dark_mode_color_scheme_id": 7}
+    )
+    
+    if dark_mode_response.status_code == 200:
+        print("✓ Default dark mode color scheme set to ID 7 (light)")
+    else:
+        print(f"✗ Failed to set dark mode color scheme. Status: {dark_mode_response.status_code}, Response: {dark_mode_response.text}")
+        return False
+
+    return True
+
 if __name__ == "__main__":
     update_site_settings()
     disable_powered_by()
@@ -191,3 +210,4 @@ if __name__ == "__main__":
     update_top_menu()
     configure_fonts()
     disable_full_page_login()
+    set_default_color_scheme()
