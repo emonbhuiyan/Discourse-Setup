@@ -24,25 +24,28 @@ Follow these steps to set up and run the project:
 - API Key and Admin Username for your Discourse instance
 
 ### Steps
-
-1. Install Python virtual environment:
+0. Install Python Pip
+   ```bash
+   sudo apt install python3-pip
+   ```
+2. Install Python virtual environment:
    ```bash
    apt install python3.12-venv
    ```
-2. Create and activate a virtual environment:
+3. Create and activate a virtual environment:
     ```bash
     python3 -m venv venv
     source venv/bin/activate
     ```
-3. Install dependencies:
+4. Install dependencies:
     ```bash
     pip install -r requirements.txt
     ```
-4. Run the application:
+5. Run the application:
     ```bash
     python3 app.py
     ```
-5. Deactivate the virtual environment when done:
+6. Deactivate the virtual environment when done:
     ```bash
     deactivate
     ```
