@@ -6,6 +6,7 @@ import config
 from config import CATEGORIES
 
 HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Api-Key": config.API_KEY,
     "Api-Username": config.ADMIN_USERNAME,
     "Content-Type": "application/json",
@@ -70,7 +71,6 @@ def update_about_category_content(post_id, content, title):
     response = requests.put(f"{DISCOURSE_URL}/posts/{post_id}.json", headers=HEADERS, json=data)
     print("Updated content response:", response.json())
 
-
 def rename_about_topics():
     """Renames 'About this category' topics by removing 'About'"""
     response = requests.get(f"{DISCOURSE_URL}/categories.json", headers=HEADERS)
@@ -88,7 +88,8 @@ def rename_about_topics():
         topic_response = requests.get(f"{DISCOURSE_URL}/t/{topic_id}.json", headers=HEADERS)
         current_title = topic_response.json().get("title", "")
 
-        match = re.match(r"About the (.*) category", current_title)
+        # Match both "About the X category" and "About this X category" patterns
+        match = re.match(r"About (?:the|this) (.*) category", current_title)
         if match:
             new_title = match.group(1)
             print(f"Renaming '{current_title}' -> '{new_title}'")
