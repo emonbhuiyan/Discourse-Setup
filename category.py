@@ -20,6 +20,13 @@ DISCOURSE_URL = f"https://forum.get{FORMATTED_OCCUPATION.lower()}jobs.com"
 SITE_TITLE = f"Get{FORMATTED_OCCUPATION}Jobs.com Forum"
 SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, share, and find jobs."
 
+#Formatted occupation and URLs (No manual input here) For .net domain
+#FORMATTED_OCCUPATION = config.OCCUPATION.replace(" ", "")
+#SITE_URL = f"https://www.get{FORMATTED_OCCUPATION.lower()}jobs.net"
+#DISCOURSE_URL = f"https://forum.get{FORMATTED_OCCUPATION.lower()}jobs.net"
+#SITE_TITLE = f"Get{FORMATTED_OCCUPATION}Jobs.net Forum"
+#SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, share, and find jobs."
+
 def create_category(name, description):
     """Creates a category in Discourse"""
     print(f"Creating category: {name}")
