@@ -24,6 +24,8 @@ SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, sha
 #SITE_TITLE = f"Get{FORMATTED_OCCUPATION}Jobs.net Forum"
 #SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, share, and find jobs."
 
+CONTACT_EMAIL = "yourcontact@email"
+
 #title description automation
 def update_site_settings():
     print("Updating Discourse Site Settings...")
@@ -209,6 +211,24 @@ def set_default_color_scheme():
 
     return True
 
+# Configure Contact Email
+def configure_contact_email():
+    print("\nConfiguring Contact Email...")
+    
+    # 1. Set GTM ID
+    client_id_response = requests.put(
+        urljoin(DISCOURSE_URL, "/admin/site_settings/contact_email"),
+        headers=HEADERS,
+        json={"contact_email": CONTACT_EMAIL}
+    )
+    
+    if client_id_response.status_code == 200:
+        print("✓ Contact Email configured successfully")
+    else:
+        print(f"✗ Failed to set Contact Email: {client_id_response.status_code} - {client_id_response.text}")
+        return False
+ 
+
 if __name__ == "__main__":
     update_site_settings()
     disable_powered_by()
@@ -218,3 +238,4 @@ if __name__ == "__main__":
     configure_fonts()
     disable_full_page_login()
     set_default_color_scheme()
+    configure_contact_email()
