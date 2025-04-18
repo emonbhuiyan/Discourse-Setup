@@ -227,7 +227,23 @@ def configure_contact_email():
     else:
         print(f"✗ Failed to set Contact Email: {client_id_response.status_code} - {client_id_response.text}")
         return False
- 
+
+# Purge Unactivated Users Settings to 0 days
+def purge_unactive_users_settings():
+    print("\nSetting Purge Unactivated Users Settings to 0 days")
+    
+    # 1. Set GTM ID
+    client_id_response = requests.put(
+        urljoin(DISCOURSE_URL, "/admin/site_settings/purge_unactivated_users_grace_period_days"),
+        headers=HEADERS,
+        json={"purge_unactivated_users_grace_period_days": 0}
+    )
+    
+    if client_id_response.status_code == 200:
+        print("✓ Setting Purge Unactivated Users Settings to 0 days successfully")
+    else:
+        print(f"✗ Failed to Setting Purge Unactivated Users Settings to 0 days: {client_id_response.status_code} - {client_id_response.text}")
+        return False
 
 if __name__ == "__main__":
     update_site_settings()
@@ -239,3 +255,4 @@ if __name__ == "__main__":
     disable_full_page_login()
     set_default_color_scheme()
     configure_contact_email()
+    purge_unactive_users_settings()
