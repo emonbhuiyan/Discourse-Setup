@@ -24,6 +24,7 @@ SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, sha
 #SITE_TITLE = f"Get{FORMATTED_OCCUPATION}Jobs.net Forum"
 #SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, share, and find jobs."
 
+# Change contact email to desired contact Email
 CONTACT_EMAIL = "yourcontact@email"
 
 #title description automation
