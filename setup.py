@@ -103,14 +103,14 @@ def configure_google_oauth():
     enable_response = requests.put(
         urljoin(DISCOURSE_URL, "/admin/site_settings/enable_google_oauth2_logins"),
         headers=HEADERS,
-        json={"enable_google_oauth2_logins": "false"}
+        json={"enable_google_oauth2_logins": "true"}
     )
     
     if enable_response.status_code == 200:
-        print("✓ Google OAuth logins disabled successfully")
+        print("✓ Google OAuth logins enabled successfully")
         return True
     else:
-        print(f"✗ Failed to disabled Google OAuth: {enable_response.status_code} - {enable_response.text}")
+        print(f"✗ Failed to enable Google OAuth: {enable_response.status_code} - {enable_response.text}")
         return False
 
 # Configure Google TAG Manager
@@ -179,19 +179,19 @@ def configure_fonts():
 
     return True  # Only returns True if both fonts are configured successfully
 
-#Disable Full page login
-def disable_full_page_login():
-    print("\nDisabling 'Full page login'...")
-    response = requests.put(
-        urljoin(DISCOURSE_URL, "/admin/site_settings/full_page_login"),
-        headers=HEADERS,
-        json={"full_page_login": "false"}
-    )
+# #Disable Full page login
+# def disable_full_page_login():
+#     print("\nDisabling 'Full page login'...")
+#     response = requests.put(
+#         urljoin(DISCOURSE_URL, "/admin/site_settings/full_page_login"),
+#         headers=HEADERS,
+#         json={"full_page_login": "false"}
+#     )
     
-    if response.status_code == 200:
-        print("✓ Successfully disabled 'Full page login'")
-    else:
-        print(f"✗ Failed to disable. Status: {response.status_code}, Response: {response.text}")
+#     if response.status_code == 200:
+#         print("✓ Successfully disabled 'Full page login'")
+#     else:
+#         print(f"✗ Failed to disable. Status: {response.status_code}, Response: {response.text}")
 
 # Set default color scheme to light (ID 7)
 def set_default_color_scheme():
@@ -216,7 +216,6 @@ def set_default_color_scheme():
 def configure_contact_email():
     print("\nConfiguring Contact Email...")
     
-    # 1. Set GTM ID
     client_id_response = requests.put(
         urljoin(DISCOURSE_URL, "/admin/site_settings/contact_email"),
         headers=HEADERS,
@@ -233,7 +232,6 @@ def configure_contact_email():
 def purge_unactive_users_settings():
     print("\nSetting Purge Unactivated Users Settings to 0 days")
     
-    # 1. Set GTM ID
     client_id_response = requests.put(
         urljoin(DISCOURSE_URL, "/admin/site_settings/purge_unactivated_users_grace_period_days"),
         headers=HEADERS,
@@ -246,6 +244,101 @@ def purge_unactive_users_settings():
         print(f"✗ Failed to Setting Purge Unactivated Users Settings to 0 days: {client_id_response.status_code} - {client_id_response.text}")
         return False
 
+# Update Discourse Add Jobs To Digest
+def configure_job_digest_plugin():
+    # 0. Enable Discourse add jobs to digest
+    print("\nConfiguring Discourse add jobs to digest")
+    print("\nEnabling Discourse add jobs to digest")
+    
+    client_id_response = requests.put(
+        urljoin(DISCOURSE_URL, "/admin/site_settings/discourse_add_jobs_to_digest_enabled"),
+        headers=HEADERS,
+        json={"discourse_add_jobs_to_digest_enabled": "true"}
+    )
+    
+    if client_id_response.status_code == 200:
+        print("✓ Discourse add jobs to digest enabled Successfully")
+    else:
+        print(f"✗ Failed to Enable Discourse add jobs to digest: {client_id_response.status_code} - {client_id_response.text}")
+        return False
+
+    # 1. Update Job API URL
+    print("\nUpdating Job API URL")
+
+    client_id_response = requests.put(
+        urljoin(DISCOURSE_URL, "/admin/site_settings/job_api_url"),
+        headers=HEADERS,
+        json={"job_api_url": f"https://api.get{FORMATTED_OCCUPATION.lower()}jobs.com/site/v1/digest/search"}
+        #json={"job_api_url": f"https://api.get{FORMATTED_OCCUPATION.lower()}jobs.net/site/v1/digest/search"}
+    )
+    
+    if client_id_response.status_code == 200:
+        print("✓ Job API URL Updated Successfully")
+    else:
+        print(f"✗ Failed to update Job API URL: {client_id_response.status_code} - {client_id_response.text}")
+        return False
+
+    # 2. Update Job Site URL
+    print("\nUpdating Job Site URL")
+
+    client_id_response = requests.put(
+        urljoin(DISCOURSE_URL, "/admin/site_settings/job_site_url"),
+        headers=HEADERS,
+        json={"job_site_url": SITE_URL}
+    )
+    
+    if client_id_response.status_code == 200:
+        print("✓ Job Site URL Updated Successfully")
+    else:
+        print(f"✗ Failed to update Job Site URL: {client_id_response.status_code} - {client_id_response.text}")
+        return False
+
+    # 3. Update Job Site Name
+    print("\nUpdating Job Site URL")
+
+    client_id_response = requests.put(
+        urljoin(DISCOURSE_URL, "/admin/site_settings/job_site_name"),
+        headers=HEADERS,
+        json={"job_site_name": f"Get{FORMATTED_OCCUPATION}Jobs.com"}
+        #json={"job_site_name": f"Get{FORMATTED_OCCUPATION}Jobs.net"}
+    )
+    
+    if client_id_response.status_code == 200:
+        print("✓ Job Site Name Updated Successfully")
+    else:
+        print(f"✗ Failed to update Job Site Name: {client_id_response.status_code} - {client_id_response.text}")
+        return False
+
+    # 4. Clean Job search term
+    print("\nCleaning Job search term")
+    
+    client_id_response = requests.put(
+        urljoin(DISCOURSE_URL, "/admin/site_settings/job_search_term"),
+        headers=HEADERS,
+        json={"job_search_term": ""}
+    )
+    
+    if client_id_response.status_code == 200:
+        print("✓ Job search term cleaned Successfully")
+    else:
+        print(f"✗ Failed to clean Job search term: {client_id_response.status_code} - {client_id_response.text}")
+        return False
+
+    # 5. Clean Job utm parameters
+    print("\nCleaning Job utm parameters")
+    
+    client_id_response = requests.put(
+        urljoin(DISCOURSE_URL, "/admin/site_settings/job_utm_parameters"),
+        headers=HEADERS,
+        json={"job_utm_parameters": ""}
+    )
+    
+    if client_id_response.status_code == 200:
+        print("✓ Job utm parameters cleaned Successfully")
+    else:
+        print(f"✗ Failed to clean Job utm parameters: {client_id_response.status_code} - {client_id_response.text}")
+        return False
+
 if __name__ == "__main__":
     update_site_settings()
     disable_powered_by()
@@ -253,7 +346,8 @@ if __name__ == "__main__":
     configure_gtm()
     update_top_menu()
     configure_fonts()
-    disable_full_page_login()
+    # disable_full_page_login()
     set_default_color_scheme()
     configure_contact_email()
     purge_unactive_users_settings()
+    configure_job_digest_plugin()
