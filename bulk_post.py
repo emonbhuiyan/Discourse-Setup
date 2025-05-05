@@ -39,14 +39,14 @@ if response.status_code != 200:
 categories = response.json().get("category_list", {}).get("categories", [])
 
 # Normalize category names and store IDs
-category_ids = {cat["name"].strip().replace("’", "'"): cat["id"] for cat in categories}
+category_ids = {cat["name"].strip().replace("'", "'"): cat["id"] for cat in categories}
 
 print("Available Categories:")
 for name, cid in category_ids.items():
     print(f"- {name} (ID: {cid})")
 
-# List to store post links
-post_links = []
+# List to store post titles and links
+post_info = []
 
 # Create topics
 for category, title, description in topics:
@@ -75,14 +75,23 @@ for category, title, description in topics:
     else:
         topic_id = post_response.json().get("topic_id")
         post_url = f"{DISCOURSE_URL}t/{topic_id}"
-        post_links.append(post_url)
+        post_info.append((title, post_url))
         print(f"Successfully created: '{title}'")
         print(f"Post URL: {post_url}")
 
-# Print all post links at the end
-if post_links:
-    print("\nAll Created Post Links:")
-    for link in post_links:
+# Print all post titles and links at the end
+if post_info:
+    print("\nAll Created Posts:")
+    print("\n\nTitles:")
+    for title, _ in post_info:
+        print(title)
+    
+    print("\n\nLinks:")
+    for _, link in post_info:
         print(link)
+    
+    # print("\nTitles and Links:")
+    # for title, link in post_info:
+    #     print(f"{title}\n{link}\n")
 
-print("Bulk topic creation completed!")
+print("\nBulk topic creation completed!")
