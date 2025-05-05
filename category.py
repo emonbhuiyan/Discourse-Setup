@@ -29,7 +29,7 @@ SITE_DESCRIPTION = f"A community for {config.OCCUPATION.lower()} to connect, sha
 
 def create_category(name, description):
     """Creates a category in Discourse"""
-    print(f"Creating category: {name}")
+    print(f"✨ Creating category: {name}")
     data = {
         "name": name,
         "description": description,
@@ -72,11 +72,11 @@ def fetch_first_post_id(topic_id):
 
 def update_about_category_content(post_id, content, title):
     """Updates the content and title of the first post in the 'About this category' topic"""
-    print(f"Updating Post ID {post_id} with new content and title: {title}")
+    print(f"🔄 Updating Post ID {post_id} with new content and title: {title}")
     data = {"post": {"raw": content, "title": title}}
     
     response = requests.put(f"{DISCOURSE_URL}/posts/{post_id}.json", headers=HEADERS, json=data)
-    print("Updated content response:", response.json())
+    print("✅ Updated content response:", response.json())
 
 def rename_about_topics():
     """Renames 'About this category' topics by removing 'About'"""
@@ -89,7 +89,7 @@ def rename_about_topics():
 
         topic_id = fetch_about_topic_id(category_id)
         if not topic_id:
-            print(f"No 'About this category' topic found for '{category_name}'. Skipping...")
+            print(f"⏭️ No 'About this category' topic found for '{category_name}'. Skipping...")
             continue
 
         topic_response = requests.get(f"{DISCOURSE_URL}/t/{topic_id}.json", headers=HEADERS)
@@ -99,11 +99,11 @@ def rename_about_topics():
         match = re.match(r"About (?:the|this) (.*) category", current_title)
         if match:
             new_title = match.group(1)
-            print(f"Renaming '{current_title}' -> '{new_title}'")
+            print(f"🔄 Renaming '{current_title}' -> '{new_title}'")
 
             data = {"title": new_title}
             response = requests.put(f"{DISCOURSE_URL}/t/{topic_id}.json", headers=HEADERS, json=data)
-            print("Updated title response:", response.json())
+            print("✔ Updated title response:", response.json())
         else:
             print(f"Title '{current_title}' does not match expected pattern. Skipping...")
 
@@ -118,17 +118,17 @@ if __name__ == "__main__":
     for name, description in CATEGORIES.items():
         category_id = fetch_category_id(name)
         if not category_id:
-            print(f"Category '{name}' not found! Skipping...")
+            print(f"⏭️ Category '{name}' not found! Skipping...")
             continue
 
         topic_id = fetch_about_topic_id(category_id)
         if not topic_id:
-            print(f"No 'About this category' topic exists for '{name}'. Skipping...")
+            print(f"⏭️ No 'About this category' topic exists for '{name}'. Skipping...")
             continue
 
         post_id = fetch_first_post_id(topic_id)
         if not post_id:
-            print(f"Failed to fetch first post ID for topic {topic_id}. Skipping...")
+            print(f"⏭️ Failed to fetch first post ID for topic {topic_id}. Skipping...")
             continue
 
         update_about_category_content(post_id, description, name)
