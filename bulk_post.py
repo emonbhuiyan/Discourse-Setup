@@ -82,11 +82,11 @@ for category, title, description in topics:
 # Print all post titles and links at the end
 if post_info:
     print("\nAll Created Posts:")
-    print("\n\nTitles:")
+    print("\n✅ Titles:")
     for title, _ in post_info:
         print(title)
     
-    print("\n\nLinks:")
+    print("\n✅ Links:")
     for _, link in post_info:
         print(link)
     
